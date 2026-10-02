@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { Mail, MapPin, MessageCircle } from "lucide-react";
+import { submitContactForm } from "./actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,17 +26,22 @@ export default function Contact() {
     setMessage,
     setSubmitted,
   } = useUser();
-  function handleSubmit(event) {
-    event.preventDefault();
+  async function handleSubmit(event) {
+  event.preventDefault();
 
-    console.log({
-      name,
-      email,
-      message,
-    });
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("email", email);
+  formData.append("message", message);
 
+  const result = await submitContactForm(formData);
+
+  if (result.success) {
     setSubmitted(true);
+  } else {
+    alert(result.error);
   }
+}
 
   return (
     <section className="relative">
@@ -92,7 +98,10 @@ export default function Contact() {
                         placeholder="Your name"
                         required
                         value={name}
-                        onChange={(event) => setName(event.target.value)}
+                        onChange={(event) => {
+                          setName(event.target.value);
+                          setSubmitted(false);
+                        }}
                       />
                     </div>
 
@@ -108,6 +117,11 @@ export default function Contact() {
                         type="email"
                         placeholder="you@example.com"
                         required
+                        value={email}
+                        onChange={(event) => {
+                          setEmail(event.target.value);
+                          setSubmitted(false);
+                      }}
                       />
                     </div>
                   </div>
@@ -125,7 +139,10 @@ export default function Contact() {
                       required
                       placeholder="Tell us about your project..."
                       value={message}
-                      onChange={(event) => setMessage(event.target.value)}
+                      onChange={(event) => {
+                        setMessage(event.target.value);
+                        setSubmitted(false);
+                      }}
                       className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
                   </div>
@@ -138,12 +155,11 @@ export default function Contact() {
                   </Button>
                 </form>
 
-                <div className="mt-6 rounded-lg bg-muted p-4">
-                   <p>Name: {name}</p>
-                   <p>Email: {email}</p>
-                   <p>Message: {message}</p>
-                </div>
-
+                {submitted && (
+                  <div className="mt-6 rounded-lg bg-green-100 p-4 text-green-800">
+                    Message sent successfully!
+                  </div>
+                )}
             </CardContent>
           </Card>
         </div>
