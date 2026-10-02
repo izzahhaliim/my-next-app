@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  const isMaintenance =
-    process.env.MAINTENANCE_MODE === "false";
-
-  const isMaintenancePage =
-    request.nextUrl.pathname === "/maintenance";
+  const isMaintenance = process.env.MAINTENANCE_MODE === "true";
+  const isMaintenancePage = request.nextUrl.pathname === "/maintenance";
 
   if (isMaintenance && !isMaintenancePage) {
     return NextResponse.redirect(
@@ -13,9 +10,15 @@ export function middleware(request) {
     );
   }
 
+  if (!isMaintenance && isMaintenancePage) {
+    return NextResponse.redirect(
+      new URL("/", request.url)
+    );
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"],
-};
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+}
