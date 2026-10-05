@@ -2,15 +2,16 @@
   "name": "my-next-app",
   "version": "0.1.0",
   "private": true,
-"scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint",
-  "test": "jest"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "jest"
+  },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@supabase/supabase-js": "^2.117.2",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.47.0",
