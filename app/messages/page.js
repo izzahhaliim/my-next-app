@@ -1,7 +1,24 @@
-import { messages } from "@/lib/db";
+import { connection } from "next/server";
+import { supabase } from "@/lib/supabase.js";
 import { deleteMessageAction } from "./actions";
 
-export default function MessagesPage() {
+export default async function MessagesPage() {
+  await connection();
+
+  const { data: messages, error } = await supabase
+    .from("messages")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return (
+      <section className="mx-auto max-w-3xl px-6 py-20">
+        <h1 className="text-3xl font-bold">Pesan Masuk</h1>
+        <p className="mt-4 text-red-600">{error.message}</p>
+      </section>
+    );
+  }
+
   return (
     <section className="mx-auto max-w-3xl px-6 py-20">
       <h1 className="text-3xl font-bold">Pesan Masuk</h1>
@@ -11,19 +28,32 @@ export default function MessagesPage() {
           <p className="text-muted-foreground">Belum ada pesan masuk.</p>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className="rounded-lg border p-4">
-                <p className="font-medium">{msg.name} - {msg.email}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{msg.message}</p>
+            <div
+              key={msg.id}
+              className="rounded-lg border p-4"
+            >
+              <p className="font-medium">
+                {msg.name} — {msg.email}
+              </p>
 
-                <form action={deleteMessageAction} className="mt-3">
-                <input type="hidden" name="id" value={msg.id} />
-                <button 
-                    type="submit"
-                    className="mt-2 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+              <p className="mt-1 text-sm text-muted-foreground">
+                {msg.message}
+              </p>
+
+              <form action={deleteMessageAction} className="mt-3">
+                <input
+                  type="hidden"
+                  name="id"
+                  value={msg.id}
+                />
+
+                <button
+                  type="submit"
+                  className="mt-2 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
                 >
-                    Hapus
+                  Hapus
                 </button>
-                </form>
+              </form>
             </div>
           ))
         )}

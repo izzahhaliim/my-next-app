@@ -1,12 +1,27 @@
-import { supabase } from "@/lib/supabase.js";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
+  const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("favorites")
-    .select("*");
+    .select(`
+      id,
+      created_at,
+      user_id,
+      app_users (
+        id,
+        name,
+        email,
+        company_name
+      )
+    `);
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 
   return Response.json(data);

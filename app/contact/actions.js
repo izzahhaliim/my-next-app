@@ -1,6 +1,6 @@
 "use server";
 
-import { messages } from "@/lib/db";
+import { supabase } from "@/lib/supabase.js";
 
 export async function submitContactForm(formData) {
   const name = formData.get("name");
@@ -8,16 +8,24 @@ export async function submitContactForm(formData) {
   const message = formData.get("message");
 
   if (!name || !email || !message) {
-    return { success: false, error: "Semua field wajib diisi." };
+    return {
+      success: false,
+      error: "Semua field wajib diisi.",
+    };
   }
 
-  messages.push({
-    id: Date.now(),
-    name,
-    email,
-    message,
-    createdAt: new Date().toISOString(),
-  });
+  const { error } = await supabase
+    .from("messages")
+    .insert({ name, email, message });
 
-  return { success: true };
+  if (error) {
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  return {
+    success: true,
+  };
 }

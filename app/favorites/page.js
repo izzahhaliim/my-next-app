@@ -42,8 +42,18 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {favorites.map((user) => (
-            <UserCard key={user.id} user={user} />
+          {favorites.map((favorite) => (
+            <UserCard
+              key={favorite.id}
+              user={{
+                id: favorite.app_users.id,
+                name: favorite.app_users.name,
+                email: favorite.app_users.email,
+                company: {
+                  name: favorite.app_users.company_name,
+                },
+              }}
+            />
           ))}
         </div>
       )}
