@@ -1,9 +1,11 @@
 import { connection } from "next/server";
-import { supabase } from "@/lib/supabase.js";
+import { createClient } from "@/lib/supabase/server";
 import { deleteMessageAction } from "./actions";
 
 export default async function MessagesPage() {
   await connection();
+
+  const supabase = await createClient();
 
   const { data: messages, error } = await supabase
     .from("messages")
@@ -12,52 +14,61 @@ export default async function MessagesPage() {
 
   if (error) {
     return (
-      <section className="mx-auto max-w-3xl px-6 py-20">
-        <h1 className="text-3xl font-bold">Pesan Masuk</h1>
-        <p className="mt-4 text-red-600">{error.message}</p>
+      <section className="mx-auto max-w-4xl px-4 py-10">
+        <h1 className="text-2xl font-bold">Messages</h1>
+
+        <p className="mt-4 text-red-500">
+          Error: {error.message}
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="mx-auto max-w-3xl px-6 py-20">
-      <h1 className="text-3xl font-bold">Pesan Masuk</h1>
+    <section className="mx-auto max-w-4xl px-4 py-10">
+      <h1 className="text-2xl font-bold">Messages</h1>
 
-      <div className="mt-8 space-y-4">
-        {messages.length === 0 ? (
-          <p className="text-muted-foreground">Belum ada pesan masuk.</p>
-        ) : (
-          messages.map((msg) => (
+      {messages.length === 0 ? (
+        <p className="mt-4 text-muted-foreground">
+          Belum ada pesan masuk.
+        </p>
+      ) : (
+        <div className="mt-6 space-y-4">
+          {messages.map((msg) => (
             <div
               key={msg.id}
-              className="rounded-lg border p-4"
+              className="rounded-xl border p-4"
             >
-              <p className="font-medium">
-                {msg.name} — {msg.email}
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="font-semibold">{msg.name}</h2>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                {msg.message}
-              </p>
+                  <p className="text-sm text-muted-foreground">
+                    {msg.email}
+                  </p>
 
-              <form action={deleteMessageAction} className="mt-3">
-                <input
-                  type="hidden"
-                  name="id"
-                  value={msg.id}
-                />
+                  <p className="mt-3">{msg.message}</p>
+                </div>
 
-                <button
-                  type="submit"
-                  className="mt-2 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                >
-                  Hapus
-                </button>
-              </form>
+                <form action={deleteMessageAction}>
+                  <input
+                    type="hidden"
+                    name="id"
+                    value={msg.id}
+                  />
+
+                  <button
+                    type="submit"
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </form>
+              </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
